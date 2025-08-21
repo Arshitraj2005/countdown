@@ -3,21 +3,57 @@
 <head>
   <title>Countdown Stream</title>
   <link rel="stylesheet" href="/static/css/style.css">
+  <style>
+    body {
+      margin: 0;
+      overflow: hidden;
+      background-color: black;
+      color: white;
+      font-family: 'Courier New', Courier, monospace;
+    }
+    .countdown {
+      position: absolute;
+      top: 20px;
+      left: 50%;
+      transform: translateX(-50%);
+      font-size: 2em;
+      z-index: 2;
+    }
+    #waveCanvas {
+      position: absolute;
+      top: 0;
+      left: 0;
+      z-index: 1;
+    }
+    .background video, .background img {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      object-fit: cover;
+      z-index: 0;
+    }
+  </style>
 </head>
 <body>
   <div class="background">
+    <!-- Optional background video -->
     <video autoplay muted loop id="bgVideo">
       <source src="/static/bg/background.mp4" type="video/mp4">
     </video>
+    <!-- Optional background image -->
     <img src="/static/bg/background.jpg" id="bgImage" />
   </div>
 
   <div class="countdown" id="countdown"></div>
   <canvas id="waveCanvas"></canvas>
-  <audio id="audio" src="/static/audio/song.mp3" autoplay loop></audio>
 
-  <script src="/static/js/wave.js"></script>
+  <!-- 🔊 Audio from Google Drive -->
+  <audio id="audio" src="https://drive.google.com/uc?export=download&id=1sAWgzklhHHurtLsH1ocZGja3EwCVTC4N" autoplay loop></audio>
+
   <script>
+    // ⏳ Countdown Logic
     const countdown = document.getElementById("countdown");
     function updateCountdown() {
       const now = new Date();
@@ -32,6 +68,43 @@
       countdown.innerHTML = `${days} Days | ${hours} Hours | ${minutes} Minutes | ${seconds} Seconds`;
     }
     setInterval(updateCountdown, 1000);
+
+    // 🌊 Wave Animation
+    const audio = document.getElementById("audio");
+    const canvas = document.getElementById("waveCanvas");
+    const ctx = canvas.getContext("2d");
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
+
+    const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    const analyser = audioCtx.createAnalyser();
+    const source = audioCtx.createMediaElementSource(audio);
+    source.connect(analyser);
+    analyser.connect(audioCtx.destination);
+
+    const bufferLength = analyser.frequencyBinCount;
+    const dataArray = new Uint8Array(bufferLength);
+
+    function draw() {
+      requestAnimationFrame(draw);
+      analyser.getByteFrequencyData(dataArray);
+
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      ctx.beginPath();
+      ctx.strokeStyle = "cyan";
+      ctx.lineWidth = 2;
+
+      for (let i = 0; i < bufferLength; i++) {
+        const angle = (i / bufferLength) * 2 * Math.PI;
+        const radius = dataArray[i] / 2;
+        const x = canvas.width / 2 + radius * Math.cos(angle);
+        const y = canvas.height / 2 + radius * Math.sin(angle);
+        ctx.lineTo(x, y);
+      }
+      ctx.closePath();
+      ctx.stroke();
+    }
+    draw();
   </script>
 </body>
 </html>
