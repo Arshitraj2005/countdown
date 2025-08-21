@@ -14,7 +14,6 @@ def start_stream():
     rtmp_url = f"rtmp://a.rtmp.youtube.com/live2/{stream_key}"
     audio_path = "static/audio/song.mp3"
 
-    # Trigger ffmpeg stream (audio-only)
     subprocess.Popen([
         "ffmpeg", "-re", "-i", audio_path,
         "-f", "flv", rtmp_url
@@ -22,6 +21,5 @@ def start_stream():
     return "✅ Streaming started to YouTube!"
 
 if __name__ == '__main__':
-    # Bind to Render-assigned port
     port = int(os.environ.get("PORT", 5000))
     app.run(host="0.0.0.0", port=port)
