@@ -1,5 +1,6 @@
-from flask import Flask, render_template, send_from_directory
+from flask import Flask, render_template
 import subprocess
+import os
 
 app = Flask(__name__)
 
@@ -13,11 +14,14 @@ def start_stream():
     rtmp_url = f"rtmp://a.rtmp.youtube.com/live2/{stream_key}"
     audio_path = "static/audio/song.mp3"
 
+    # Trigger ffmpeg stream (audio-only)
     subprocess.Popen([
         "ffmpeg", "-re", "-i", audio_path,
         "-f", "flv", rtmp_url
     ])
-    return "Streaming started!"
+    return "✅ Streaming started to YouTube!"
 
 if __name__ == '__main__':
-    app.run(debug=True)
+    # Bind to Render-assigned port
+    port = int(os.environ.get("PORT", 5000))
+    app.run(host="0.0.0.0", port=port)
