@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Countdown Stream</title>
+  <link rel="stylesheet" href="/static/css/style.css">
+</head>
+<body>
+  <div class="background">
+    <video autoplay muted loop id="bgVideo">
+      <source src="/static/bg/background.mp4" type="video/mp4">
+    </video>
+    <img src="/static/bg/background.jpg" id="bgImage" />
+  </div>
+
+  <div class="countdown" id="countdown"></div>
+  <canvas id="waveCanvas"></canvas>
+  <audio id="audio" src="/static/audio/song.mp3" autoplay loop></audio>
+
+  <script src="/static/js/wave.js"></script>
+  <script>
+    const countdown = document.getElementById("countdown");
+    function updateCountdown() {
+      const now = new Date();
+      const target = new Date("2025-01-01T00:00:00");
+      const diff = target - now;
+
+      const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+      const hours = Math.floor((diff / (1000 * 60 * 60)) % 24);
+      const minutes = Math.floor((diff / (1000 * 60)) % 60);
+      const seconds = Math.floor((diff / 1000) % 60);
+
+      countdown.innerHTML = `${days} Days | ${hours} Hours | ${minutes} Minutes | ${seconds} Seconds`;
+    }
+    setInterval(updateCountdown, 1000);
+  </script>
+</body>
+</html>
